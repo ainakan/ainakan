@@ -32,7 +32,7 @@ runs:
         KEYCHAIN_PASSWORD: ${{ inputs.keychain-password }}
       run: |
         CERTIFICATE_PATH=$RUNNER_TEMP/apple-certificates.p12
-        KEYCHAIN_PATH=$RUNNER_TEMP/frida-signing.keychain-db
+        KEYCHAIN_PATH=$RUNNER_TEMP/ainakan-signing.keychain-db
         echo -n "$CERTIFICATES_P12" | base64 --decode --output $CERTIFICATE_PATH
         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
@@ -51,8 +51,8 @@ runs:
       shell: bash
     - name: Configure git
       run: |
-        git config --global user.name "Frida Developers"
-        git config --global user.email "oleavr@frida.re"
+        git config --global user.name "Ainakan Developers"
+        git config --global user.email "oleavr@ainakan.re"
       shell: bash
     - name: Check out releng
       run: |
@@ -63,8 +63,8 @@ runs:
     - name: Add convenience environment variables
       run: |
         (
-          echo "FRIDA_PREFIX=$RUNNER_WORKSPACE/dist"
-          echo "FRIDA_VERSION=$(releng/frida_version.py)"
+          echo "AINAKAN_PREFIX=$RUNNER_WORKSPACE/dist"
+          echo "AINAKAN_VERSION=$(releng/ainakan_version.py)"
         ) >> $GITHUB_ENV
       shell: bash
     - name: Configure AWS credentials
@@ -77,7 +77,7 @@ runs:
       run: |
         (
           echo "defaults:"
-          echo "    domain: frida.re"
+          echo "    domain: ainakan.re"
           echo "    email: ${{ inputs.cloudflare-email }}"
           echo "    token: ${{ inputs.cloudflare-token }}"
         ) > ~/.cfcli.yml

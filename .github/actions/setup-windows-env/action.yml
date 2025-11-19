@@ -21,8 +21,8 @@ runs:
   steps:
     - name: Configure git
       run: |
-        git config --global user.name "Frida Developers"
-        git config --global user.email "oleavr@frida.re"
+        git config --global user.name "Ainakan Developers"
+        git config --global user.email "oleavr@ainakan.re"
       shell: pwsh
     - name: Check out releng
       run: |
@@ -32,8 +32,8 @@ runs:
       shell: pwsh
     - name: Add convenience environment variables
       run: |
-        echo "FRIDA_PREFIX=$Env:RUNNER_WORKSPACE\dist" >> $Env:GITHUB_ENV
-        echo "FRIDA_VERSION=$(python releng/frida_version.py)" >> $Env:GITHUB_ENV
+        echo "AINAKAN_PREFIX=$Env:RUNNER_WORKSPACE\dist" >> $Env:GITHUB_ENV
+        echo "AINAKAN_VERSION=$(python releng/ainakan_version.py)" >> $Env:GITHUB_ENV
       shell: pwsh
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -45,7 +45,7 @@ runs:
       run: |
         @"
         defaults:
-            domain: frida.re
+            domain: ainakan.re
             email: ${{ inputs.cloudflare-email }}
             token: ${{ inputs.cloudflare-token }}
         "@ | Set-Content -Path $HOME\.cfcli.yml -NoNewline

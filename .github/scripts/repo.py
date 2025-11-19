@@ -17,13 +17,13 @@ from releng.deps import load_dependency_parameters, query_repo_commits
 
 
 PROJECT_NAMES_IN_RELEASE_CYCLE = [
-    "frida-gum",
-    "frida-core",
-    "frida-clr",
-    "frida-node",
-    "frida-python",
-    "frida-qml",
-    "frida-swift",
+    "ainakan-gum",
+    "ainakan-core",
+    "ainakan-clr",
+    "ainakan-node",
+    "ainakan-python",
+    "ainakan-qml",
+    "ainakan-swift",
 ]
 
 
@@ -61,7 +61,7 @@ def main(argv: list[str]):
 
 def bump():
     projects = list(enumerate_projects_in_release_cycle())
-    projects.append(("frida-tools", ROOT_DIR / "subprojects" / "frida-tools"))
+    projects.append(("ainakan-tools", ROOT_DIR / "subprojects" / "ainakan-tools"))
 
     assert_no_local_changes(ROOT_DIR)
     for _, repo in projects:
@@ -78,7 +78,7 @@ def bump():
         bump_subproject(name, repo)
 
     if bump_submodules():
-        push_changes("frida", ROOT_DIR)
+        push_changes("ainakan", ROOT_DIR)
 
 
 def bump_subproject(name: str, repo: Path):
@@ -150,7 +150,7 @@ def bump_submodules() -> list[str]:
     changes = query_local_changes(ROOT_DIR)
     relevant_changes = [relpath for kind, relpath in changes
                         if kind == "M" and (relpath == "releng" or relpath.startswith("subprojects/"))]
-    assert len(changes) == len(relevant_changes), "frida: expected clean repo"
+    assert len(changes) == len(relevant_changes), "ainakan: expected clean repo"
     if relevant_changes:
         run(["git", "add", *relevant_changes], cwd=ROOT_DIR)
         run(["git", "commit", "-m", "submodules: Bump outdated"], cwd=ROOT_DIR)
@@ -168,7 +168,7 @@ def tag(version: str):
 
     bump_submodules()
 
-    prepublish("frida", version, ROOT_DIR)
+    prepublish("ainakan", version, ROOT_DIR)
 
 
 def prepublish(name: str, version: str, repo: Path):
@@ -241,7 +241,7 @@ def push_changes(name: str, repo: Path):
 def ensure_remote_origin_writable(name: str, repo: Path):
     if "https:" in run(["git", "remote", "show", "origin", "-n"], cwd=repo).stdout:
         run(["git", "remote", "rm", "origin"], cwd=repo)
-        run(["git", "remote", "add", "origin", f"git@github.com:frida/{name}.git"], cwd=repo)
+        run(["git", "remote", "add", "origin", f"git@github.com:ainakan/{name}.git"], cwd=repo)
         run(["git", "fetch", "origin"], cwd=repo)
 
 

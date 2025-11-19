@@ -3,7 +3,7 @@ name: CI
 on: push
 
 env:
-  FRIDA_COMPILER_MOD: subprojects/frida-core/src/compiler/go.mod
+  AINAKAN_COMPILER_MOD: subprojects/ainakan-core/src/compiler/go.mod
   ANDROID_NDK_VERSION: r25b
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
       - name: Grab needed submodules
-        run: python tools/ensure-submodules.py frida-gum frida-core frida-python frida-node
+        run: python tools/ensure-submodules.py ainakan-gum ainakan-core ainakan-python ainakan-node
       - name: Install tools
         run: |
           sudo apt-get update
@@ -51,42 +51,42 @@ jobs:
       - name: Download Node-API prebuilds for Windows/x86_64
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-windows-x86_64
+          name: ainakan-node-windows-x86_64
           path: build/release-assets/
       - name: Download Node-API prebuilds for Windows/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-windows-arm64
+          name: ainakan-node-windows-arm64
           path: build/release-assets/
       - name: Download Node-API prebuilds for macOS/x86_64
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-macos-x86_64
+          name: ainakan-node-macos-x86_64
           path: build/release-assets/
       - name: Download Node-API prebuilds for macOS/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-macos-arm64
+          name: ainakan-node-macos-arm64
           path: build/release-assets/
       - name: Download Node-API prebuilds for Linux/x86
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-linux-x86
+          name: ainakan-node-linux-x86
           path: build/release-assets/
       - name: Download Node-API prebuilds for Linux/x86_64
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-linux-x86_64
+          name: ainakan-node-linux-x86_64
           path: build/release-assets/
       - name: Download Node-API prebuilds for Linux/armhf
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-linux-armhf
+          name: ainakan-node-linux-armhf
           path: build/release-assets/
       - name: Download Node-API prebuilds for Linux/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-node-linux-arm64
+          name: ainakan-node-linux-arm64
           path: build/release-assets/
       - name: Package iOS assets
         uses: ./.github/actions/package-ios-assets
@@ -99,8 +99,8 @@ jobs:
       - name: Publish release to GitHub
         uses: softprops/action-gh-release@v1
         with:
-          name: "Frida ${{ env.FRIDA_VERSION }}"
-          body: "See https://frida.re/news/ for details."
+          name: "Ainakan ${{ env.AINAKAN_VERSION }}"
+          body: "See https://ainakan.re/news/ for details."
           files: build/release-assets/*
       - name: Prepare Python packages
         uses: ./.github/actions/prepare-python-packages
@@ -121,38 +121,38 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Node.js bindings to npm
         run: |
-          export FRIDA_DEPS=$PWD/deps
-          cd subprojects/frida-node/subprojects
-          ln -s ../../frida-gum .
-          ln -s ../../frida-core .
+          export AINAKAN_DEPS=$PWD/deps
+          cd subprojects/ainakan-node/subprojects
+          ln -s ../../ainakan-gum .
+          ln -s ../../ainakan-core .
           cd ..
           git submodule update --init --recursive
-          npm version $FRIDA_VERSION
-          ./configure -- -Dfrida-core:compat=disabled
+          npm version $AINAKAN_VERSION
+          ./configure -- -Dainakan-core:compat=disabled
           make
           npm install
           npm publish
-      - name: Publish frida-gadget-ios to npm
+      - name: Publish ainakan-gadget-ios to npm
         run: |
-          cd releng/modules/frida-gadget-ios
-          npm version $FRIDA_VERSION
+          cd releng/modules/ainakan-gadget-ios
+          npm version $AINAKAN_VERSION
           npm publish
-      - name: Trigger magisk-frida CI
+      - name: Trigger magisk-ainakan CI
         run: |
           curl \
               -X POST \
               -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ secrets.MAGISK_FRIDA_TOKEN }}" \
-              https://api.github.com/repos/ViRb3/magisk-frida/dispatches \
+              -H "Authorization: token ${{ secrets.MAGISK_AINAKAN_TOKEN }}" \
+              https://api.github.com/repos/ViRb3/magisk-ainakan/dispatches \
               -d '{"event_type":"build"}'
 
   publish-dev:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs:
-      - frida-windows
-      - frida-macos
-      - frida-linux
+      - ainakan-windows
+      - ainakan-macos
+      - ainakan-linux
       - assemble-ios-assets
       - assemble-tvos-assets
     steps:
@@ -168,7 +168,7 @@ jobs:
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
       - name: Grab needed submodules
-        run: python tools/ensure-submodules.py frida-core frida-python
+        run: python tools/ensure-submodules.py ainakan-core ainakan-python
       - name: Install tools
         run: |
           sudo apt-get update
@@ -193,7 +193,7 @@ jobs:
 
   assemble-ios-assets:
     runs-on: macos-latest
-    needs: frida-ios
+    needs: ainakan-ios
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -207,34 +207,34 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Download universal frida-server for iOS/arm64(e)
+      - name: Download universal ainakan-server for iOS/arm64(e)
         uses: actions/download-artifact@v4
         with:
-          name: frida-server-ios-arm64e
+          name: ainakan-server-ios-arm64e
           path: ios-arm64e/
-      - name: Create universal frida-server for iOS
+      - name: Create universal ainakan-server for iOS
         run: |
-          lipo ios-arm64e/frida-server -thin arm64 -output frida-server-arm64
-          lipo ios-arm64e/frida-server -thin arm64e -output frida-server-arm64e
+          lipo ios-arm64e/ainakan-server -thin arm64 -output ainakan-server-arm64
+          lipo ios-arm64e/ainakan-server -thin arm64e -output ainakan-server-arm64e
           for arch in arm64 arm64e; do
-            codesign -f -s "-" --preserve-metadata=entitlements frida-server-$arch
+            codesign -f -s "-" --preserve-metadata=entitlements ainakan-server-$arch
           done
           ./releng/mkfatmacho.py \
-              frida-server-ios-universal \
-              frida-server-arm64 \
-              frida-server-arm64e
-      - name: Download universal frida-agent for iOS/arm64(e)
+              ainakan-server-ios-universal \
+              ainakan-server-arm64 \
+              ainakan-server-arm64e
+      - name: Download universal ainakan-agent for iOS/arm64(e)
         uses: actions/download-artifact@v4
         with:
-          name: frida-agent-ios-arm64e
+          name: ainakan-agent-ios-arm64e
           path: ios-arm64e/
-      - name: Sign universal frida-agent for iOS/arm64(e)
-        run: codesign -f -s "-" ios-arm64e/frida-agent.dylib
+      - name: Sign universal ainakan-agent for iOS/arm64(e)
+        run: codesign -f -s "-" ios-arm64e/ainakan-agent.dylib
       - name: Assemble iOS assets
         run: |
-          mkdir -p ios-assets/usr/bin ios-assets/usr/lib/frida
-          mv frida-server-ios-universal ios-assets/usr/bin/frida-server
-          mv ios-arm64e/frida-agent.dylib ios-assets/usr/lib/frida/frida-agent.dylib
+          mkdir -p ios-assets/usr/bin ios-assets/usr/lib/ainakan
+          mv ainakan-server-ios-universal ios-assets/usr/bin/ainakan-server
+          mv ios-arm64e/ainakan-agent.dylib ios-assets/usr/lib/ainakan/ainakan-agent.dylib
       - name: Upload iOS assets
         uses: actions/upload-artifact@v4
         with:
@@ -243,7 +243,7 @@ jobs:
 
   assemble-tvos-assets:
     runs-on: macos-latest
-    needs: frida-tvos
+    needs: ainakan-tvos
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -257,25 +257,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Download frida-server for tvOS/arm64
+      - name: Download ainakan-server for tvOS/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-server-tvos-arm64
+          name: ainakan-server-tvos-arm64
           path: tvos-arm64/
-      - name: Prepare frida-server for tvOS/arm64
-        run: codesign -f -s "-" --preserve-metadata=entitlements tvos-arm64/frida-server
-      - name: Download frida-agent for tvOS/arm64
+      - name: Prepare ainakan-server for tvOS/arm64
+        run: codesign -f -s "-" --preserve-metadata=entitlements tvos-arm64/ainakan-server
+      - name: Download ainakan-agent for tvOS/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-agent-tvos-arm64
+          name: ainakan-agent-tvos-arm64
           path: tvos-arm64/
-      - name: Prepare frida-agent for tvOS/arm64
-        run: codesign -f -s "-" tvos-arm64/frida-agent.dylib
+      - name: Prepare ainakan-agent for tvOS/arm64
+        run: codesign -f -s "-" tvos-arm64/ainakan-agent.dylib
       - name: Assemble tvOS assets
         run: |
-          mkdir -p tvos-assets/usr/bin tvos-assets/usr/lib/frida
-          mv tvos-arm64/frida-server tvos-assets/usr/bin/frida-server
-          mv tvos-arm64/frida-agent.dylib tvos-assets/usr/lib/frida/frida-agent.dylib
+          mkdir -p tvos-assets/usr/bin tvos-assets/usr/lib/ainakan
+          mv tvos-arm64/ainakan-server tvos-assets/usr/bin/ainakan-server
+          mv tvos-arm64/ainakan-agent.dylib tvos-assets/usr/lib/ainakan/ainakan-agent.dylib
       - name: Upload tvOS assets
         uses: actions/upload-artifact@v4
         with:
@@ -285,7 +285,7 @@ jobs:
   package-apple-universal:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: macos-latest
-    needs: [frida-macos, frida-ios, frida-watchos, frida-tvos]
+    needs: [ainakan-macos, ainakan-ios, ainakan-watchos, ainakan-tvos]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -299,160 +299,160 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Download frida-gadget for macOS/x86_64
+      - name: Download ainakan-gadget for macOS/x86_64
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-macos-x86_64
+          name: ainakan-gadget-macos-x86_64
           path: macos-x86_64/
-      - name: Download frida-gadget for macOS/arm64(e)
+      - name: Download ainakan-gadget for macOS/arm64(e)
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-macos-arm64e
+          name: ainakan-gadget-macos-arm64e
           path: macos-arm64e/
-      - name: Create universal frida-gadget for macOS
+      - name: Create universal ainakan-gadget for macOS
         run: |
           lipo \
-              macos-x86_64/frida-gadget.dylib \
-              macos-arm64e/frida-gadget.dylib \
-              -create -output frida-gadget-macos-universal.dylib
+              macos-x86_64/ainakan-gadget.dylib \
+              macos-arm64e/ainakan-gadget.dylib \
+              -create -output ainakan-gadget-macos-universal.dylib
           install_name_tool \
-              -id @executable_path/../Frameworks/FridaGadget.dylib \
-              frida-gadget-macos-universal.dylib
+              -id @executable_path/../Frameworks/AinakanGadget.dylib \
+              ainakan-gadget-macos-universal.dylib
           codesign \
               -f -s "$MACOS_CERTID" \
-              frida-gadget-macos-universal.dylib
-      - name: Compress universal frida-gadget for macOS
-        run: xz -T 0 frida-gadget-macos-universal.dylib
-      - name: Upload universal frida-gadget for macOS
+              ainakan-gadget-macos-universal.dylib
+      - name: Compress universal ainakan-gadget for macOS
+        run: xz -T 0 ainakan-gadget-macos-universal.dylib
+      - name: Upload universal ainakan-gadget for macOS
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-macos-universal
-          path: frida-gadget-macos-universal.dylib.xz
-      - name: Download frida-gadget for iOS/arm64(e)
+          name: release-asset-ainakan-gadget-macos-universal
+          path: ainakan-gadget-macos-universal.dylib.xz
+      - name: Download ainakan-gadget for iOS/arm64(e)
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-ios-arm64e
+          name: ainakan-gadget-ios-arm64e
           path: ios-arm64e/
-      - name: Create universal frida-gadget for iOS
+      - name: Create universal ainakan-gadget for iOS
         run: |
-          mv ios-arm64e/frida-gadget.dylib frida-gadget-ios-universal.dylib
+          mv ios-arm64e/ainakan-gadget.dylib ainakan-gadget-ios-universal.dylib
           install_name_tool \
-              -id @executable_path/Frameworks/FridaGadget.dylib \
-              frida-gadget-ios-universal.dylib
+              -id @executable_path/Frameworks/AinakanGadget.dylib \
+              ainakan-gadget-ios-universal.dylib
           codesign \
               -f -s "$IOS_CERTID" \
-              frida-gadget-ios-universal.dylib
-      - name: Compress universal frida-gadget for iOS
+              ainakan-gadget-ios-universal.dylib
+      - name: Compress universal ainakan-gadget for iOS
         run: |
-          gzip -k frida-gadget-ios-universal.dylib
-          xz -T 0 frida-gadget-ios-universal.dylib
-      - name: Upload universal frida-gadget for iOS (gz)
+          gzip -k ainakan-gadget-ios-universal.dylib
+          xz -T 0 ainakan-gadget-ios-universal.dylib
+      - name: Upload universal ainakan-gadget for iOS (gz)
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-ios-universal-gz
-          path: frida-gadget-ios-universal.dylib.gz
-      - name: Upload universal frida-gadget for iOS (xz)
+          name: release-asset-ainakan-gadget-ios-universal-gz
+          path: ainakan-gadget-ios-universal.dylib.gz
+      - name: Upload universal ainakan-gadget for iOS (xz)
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-ios-universal-xz
-          path: frida-gadget-ios-universal.dylib.xz
-      - name: Download frida-gadget for iOS/x86_64-simulator
+          name: release-asset-ainakan-gadget-ios-universal-xz
+          path: ainakan-gadget-ios-universal.dylib.xz
+      - name: Download ainakan-gadget for iOS/x86_64-simulator
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-ios-x86_64-simulator
+          name: ainakan-gadget-ios-x86_64-simulator
           path: ios-x86_64-simulator/
-      - name: Download frida-gadget for iOS/arm64-simulator
+      - name: Download ainakan-gadget for iOS/arm64-simulator
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-ios-arm64-simulator
+          name: ainakan-gadget-ios-arm64-simulator
           path: ios-arm64-simulator/
-      - name: Create universal frida-gadget for iOS Simulator
+      - name: Create universal ainakan-gadget for iOS Simulator
         run: |
           lipo \
-              ios-x86_64-simulator/frida-gadget.dylib \
-              ios-arm64-simulator/frida-gadget.dylib \
-              -create -output frida-gadget-ios-simulator-universal.dylib
+              ios-x86_64-simulator/ainakan-gadget.dylib \
+              ios-arm64-simulator/ainakan-gadget.dylib \
+              -create -output ainakan-gadget-ios-simulator-universal.dylib
           install_name_tool \
-              -id @executable_path/Frameworks/FridaGadget.dylib \
-              frida-gadget-ios-simulator-universal.dylib
+              -id @executable_path/Frameworks/AinakanGadget.dylib \
+              ainakan-gadget-ios-simulator-universal.dylib
           codesign \
               -f -s "$IOS_CERTID" \
-              frida-gadget-ios-simulator-universal.dylib
-      - name: Compress universal frida-gadget for iOS Simulator
-        run: xz -T 0 frida-gadget-ios-simulator-universal.dylib
-      - name: Upload universal frida-gadget for iOS Simulator
+              ainakan-gadget-ios-simulator-universal.dylib
+      - name: Compress universal ainakan-gadget for iOS Simulator
+        run: xz -T 0 ainakan-gadget-ios-simulator-universal.dylib
+      - name: Upload universal ainakan-gadget for iOS Simulator
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-ios-simulator-universal
-          path: frida-gadget-ios-simulator-universal.dylib.xz
-      - name: Download frida-gadget for watchOS/arm64
+          name: release-asset-ainakan-gadget-ios-simulator-universal
+          path: ainakan-gadget-ios-simulator-universal.dylib.xz
+      - name: Download ainakan-gadget for watchOS/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-watchos-arm64
+          name: ainakan-gadget-watchos-arm64
           path: watchos-arm64/
-      - name: Download frida-gadget for watchOS/arm64-simulator
+      - name: Download ainakan-gadget for watchOS/arm64-simulator
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-watchos-arm64-simulator
+          name: ainakan-gadget-watchos-arm64-simulator
           path: watchos-arm64-simulator/
-      - name: Package frida-gadget for watchOS
+      - name: Package ainakan-gadget for watchOS
         run: |
           for arch in arm64 arm64-simulator; do
-            cp watchos-$arch/frida-gadget.dylib frida-gadget-watchos-$arch.dylib
+            cp watchos-$arch/ainakan-gadget.dylib ainakan-gadget-watchos-$arch.dylib
             install_name_tool \
-                -id @executable_path/Frameworks/FridaGadget.dylib \
-                frida-gadget-watchos-$arch.dylib
+                -id @executable_path/Frameworks/AinakanGadget.dylib \
+                ainakan-gadget-watchos-$arch.dylib
             codesign \
                 -f -s "$WATCHOS_CERTID" \
-                frida-gadget-watchos-$arch.dylib
-            xz -T 0 frida-gadget-watchos-$arch.dylib
+                ainakan-gadget-watchos-$arch.dylib
+            xz -T 0 ainakan-gadget-watchos-$arch.dylib
           done
-      - name: Upload frida-gadget for watchOS/arm64
+      - name: Upload ainakan-gadget for watchOS/arm64
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-watchos-arm64
-          path: frida-gadget-watchos-arm64.dylib.xz
-      - name: Upload frida-gadget for watchOS/arm64-simulator
+          name: release-asset-ainakan-gadget-watchos-arm64
+          path: ainakan-gadget-watchos-arm64.dylib.xz
+      - name: Upload ainakan-gadget for watchOS/arm64-simulator
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-watchos-arm64-simulator
-          path: frida-gadget-watchos-arm64-simulator.dylib.xz
-      - name: Download frida-gadget for tvOS/arm64
+          name: release-asset-ainakan-gadget-watchos-arm64-simulator
+          path: ainakan-gadget-watchos-arm64-simulator.dylib.xz
+      - name: Download ainakan-gadget for tvOS/arm64
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-tvos-arm64
+          name: ainakan-gadget-tvos-arm64
           path: tvos-arm64/
-      - name: Download frida-gadget for tvOS/arm64-simulator
+      - name: Download ainakan-gadget for tvOS/arm64-simulator
         uses: actions/download-artifact@v4
         with:
-          name: frida-gadget-tvos-arm64-simulator
+          name: ainakan-gadget-tvos-arm64-simulator
           path: tvos-arm64-simulator/
-      - name: Package frida-gadget for tvOS
+      - name: Package ainakan-gadget for tvOS
         run: |
           for arch in arm64 arm64-simulator; do
-            cp tvos-$arch/frida-gadget.dylib frida-gadget-tvos-$arch.dylib
+            cp tvos-$arch/ainakan-gadget.dylib ainakan-gadget-tvos-$arch.dylib
             install_name_tool \
-                -id @executable_path/Frameworks/FridaGadget.dylib \
-                frida-gadget-tvos-$arch.dylib
+                -id @executable_path/Frameworks/AinakanGadget.dylib \
+                ainakan-gadget-tvos-$arch.dylib
             codesign \
                 -f -s "$TVOS_CERTID" \
-                frida-gadget-tvos-$arch.dylib
-            xz -T 0 frida-gadget-tvos-$arch.dylib
+                ainakan-gadget-tvos-$arch.dylib
+            xz -T 0 ainakan-gadget-tvos-$arch.dylib
           done
-      - name: Upload frida-gadget for tvOS/arm64
+      - name: Upload ainakan-gadget for tvOS/arm64
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-tvos-arm64
-          path: frida-gadget-tvos-arm64.dylib.xz
-      - name: Upload frida-gadget for tvOS/arm64-simulator
+          name: release-asset-ainakan-gadget-tvos-arm64
+          path: ainakan-gadget-tvos-arm64.dylib.xz
+      - name: Upload ainakan-gadget for tvOS/arm64-simulator
         uses: actions/upload-artifact@v4
         with:
-          name: release-asset-frida-gadget-tvos-arm64-simulator
-          path: frida-gadget-tvos-arm64-simulator.dylib.xz
+          name: release-asset-ainakan-gadget-tvos-arm64-simulator
+          path: ainakan-gadget-tvos-arm64-simulator.dylib.xz
 
   package-windows:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-windows
+    needs: ainakan-windows
     strategy:
       matrix:
         arch: [x86, x86_64, arm64]
@@ -463,45 +463,45 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-windows-${{ matrix.arch }}
+          name: ainakan-gum-devkit-windows-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-windows-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-windows-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-windows-${{ matrix.arch }}
-      - name: Package frida-server
+          name: ainakan-core-devkit-windows-${{ matrix.arch }}
+      - name: Package ainakan-server
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-server-windows-${{ matrix.arch }}
-      - name: Package frida-portal
+          name: ainakan-server-windows-${{ matrix.arch }}
+      - name: Package ainakan-portal
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-portal-windows-${{ matrix.arch }}
-      - name: Package frida-inject
+          name: ainakan-portal-windows-${{ matrix.arch }}
+      - name: Package ainakan-inject
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-inject-windows-${{ matrix.arch }}
-      - name: Package frida-gadget
+          name: ainakan-inject-windows-${{ matrix.arch }}
+      - name: Package ainakan-gadget
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-gadget-windows-${{ matrix.arch }}
+          name: ainakan-gadget-windows-${{ matrix.arch }}
       - name: Package .NET bindings
         if: matrix.arch != 'arm64'
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-clr-windows-${{ matrix.arch }}
+          name: ainakan-clr-windows-${{ matrix.arch }}
       - name: Package QML bindings
         if: matrix.arch == 'x86_64'
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-qml-windows-${{ matrix.arch }}
+          name: ainakan-qml-windows-${{ matrix.arch }}
 
   package-windows-sfx:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-windows
+    needs: ainakan-windows
     strategy:
       matrix:
         arch: [x86, x86_64]
@@ -512,19 +512,19 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-sfx
         with:
-          name: frida-gum-devkit-windows-${{ matrix.arch }}
+          name: ainakan-gum-devkit-windows-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-sfx
         with:
-          name: frida-gumjs-devkit-windows-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-windows-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-sfx
         with:
-          name: frida-core-devkit-windows-${{ matrix.arch }}
+          name: ainakan-core-devkit-windows-${{ matrix.arch }}
 
   package-macos:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-macos
+    needs: ainakan-macos
     strategy:
       matrix:
         arch: [x86_64, arm64, arm64e]
@@ -535,7 +535,7 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-macos-${{ matrix.arch }}
+          name: ainakan-gum-devkit-macos-${{ matrix.arch }}
       - name: Package gum-graft
         if: matrix.arch != 'arm64e'
         uses: ./.github/actions/package-artifact-file
@@ -544,32 +544,32 @@ jobs:
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-macos-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-macos-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-macos-${{ matrix.arch }}
-      - name: Package frida-server
+          name: ainakan-core-devkit-macos-${{ matrix.arch }}
+      - name: Package ainakan-server
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-server-macos-${{ matrix.arch }}
-      - name: Package frida-portal
+          name: ainakan-server-macos-${{ matrix.arch }}
+      - name: Package ainakan-portal
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-portal-macos-${{ matrix.arch }}
-      - name: Package frida-inject
+          name: ainakan-portal-macos-${{ matrix.arch }}
+      - name: Package ainakan-inject
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-inject-macos-${{ matrix.arch }}
+          name: ainakan-inject-macos-${{ matrix.arch }}
       - name: Package QML bindings
         if: matrix.arch == 'x86_64'
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-qml-macos-${{ matrix.arch }}
+          name: ainakan-qml-macos-${{ matrix.arch }}
 
   package-linux:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-linux
+    needs: ainakan-linux
     strategy:
       matrix:
         arch: [x86, x86_64, x86_64-musl, armhf, armhf-musl, armbe8, arm64, arm64be, arm64-musl, mips, mipsel, mips64, mips64el]
@@ -580,40 +580,40 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-linux-${{ matrix.arch }}
+          name: ainakan-gum-devkit-linux-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-linux-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-linux-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-linux-${{ matrix.arch }}
-      - name: Package frida-server
+          name: ainakan-core-devkit-linux-${{ matrix.arch }}
+      - name: Package ainakan-server
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-server-linux-${{ matrix.arch }}
-      - name: Package frida-portal
+          name: ainakan-server-linux-${{ matrix.arch }}
+      - name: Package ainakan-portal
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-portal-linux-${{ matrix.arch }}
-      - name: Package frida-gadget
+          name: ainakan-portal-linux-${{ matrix.arch }}
+      - name: Package ainakan-gadget
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-gadget-linux-${{ matrix.arch }}
-      - name: Package frida-inject
+          name: ainakan-gadget-linux-${{ matrix.arch }}
+      - name: Package ainakan-inject
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-inject-linux-${{ matrix.arch }}
+          name: ainakan-inject-linux-${{ matrix.arch }}
       - name: Package QML bindings
         if: matrix.arch == 'x86_64'
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-qml-linux-${{ matrix.arch }}
+          name: ainakan-qml-linux-${{ matrix.arch }}
 
   package-ios:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-ios
+    needs: ainakan-ios
     strategy:
       matrix:
         arch: [arm64, arm64e, x86_64-simulator, arm64-simulator]
@@ -624,24 +624,24 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-ios-${{ matrix.arch }}
+          name: ainakan-gum-devkit-ios-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-ios-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-ios-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-ios-${{ matrix.arch }}
-      - name: Package frida-portal
+          name: ainakan-core-devkit-ios-${{ matrix.arch }}
+      - name: Package ainakan-portal
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-portal-ios-${{ matrix.arch }}
+          name: ainakan-portal-ios-${{ matrix.arch }}
 
   package-watchos:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-watchos
+    needs: ainakan-watchos
     strategy:
       matrix:
         arch: [arm64, arm64-simulator]
@@ -652,19 +652,19 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-watchos-${{ matrix.arch }}
+          name: ainakan-gum-devkit-watchos-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-watchos-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-watchos-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-watchos-${{ matrix.arch }}
+          name: ainakan-core-devkit-watchos-${{ matrix.arch }}
 
   package-tvos:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-tvos
+    needs: ainakan-tvos
     strategy:
       matrix:
         arch: [arm64, arm64-simulator]
@@ -675,19 +675,19 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-tvos-${{ matrix.arch }}
+          name: ainakan-gum-devkit-tvos-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-tvos-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-tvos-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-tvos-${{ matrix.arch }}
+          name: ainakan-core-devkit-tvos-${{ matrix.arch }}
 
   package-android:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-android
+    needs: ainakan-android
     strategy:
       matrix:
         arch: [x86, x86_64, arm, arm64]
@@ -698,35 +698,35 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-android-${{ matrix.arch }}
+          name: ainakan-gum-devkit-android-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-android-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-android-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-android-${{ matrix.arch }}
-      - name: Package frida-server
+          name: ainakan-core-devkit-android-${{ matrix.arch }}
+      - name: Package ainakan-server
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-server-android-${{ matrix.arch }}
-      - name: Package frida-portal
+          name: ainakan-server-android-${{ matrix.arch }}
+      - name: Package ainakan-portal
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-portal-android-${{ matrix.arch }}
-      - name: Package frida-gadget
+          name: ainakan-portal-android-${{ matrix.arch }}
+      - name: Package ainakan-gadget
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-gadget-android-${{ matrix.arch }}
-      - name: Package frida-inject
+          name: ainakan-gadget-android-${{ matrix.arch }}
+      - name: Package ainakan-inject
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-inject-android-${{ matrix.arch }}
+          name: ainakan-inject-android-${{ matrix.arch }}
 
   package-qnx:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: frida-qnx
+    needs: ainakan-qnx
     strategy:
       matrix:
         arch: [armeabi]
@@ -737,33 +737,33 @@ jobs:
       - name: Package Gum devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gum-devkit-qnx-${{ matrix.arch }}
+          name: ainakan-gum-devkit-qnx-${{ matrix.arch }}
       - name: Package GumJS devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-gumjs-devkit-qnx-${{ matrix.arch }}
+          name: ainakan-gumjs-devkit-qnx-${{ matrix.arch }}
       - name: Package Core devkit
         uses: ./.github/actions/package-artifact-files-as-tarball
         with:
-          name: frida-core-devkit-qnx-${{ matrix.arch }}
-      - name: Package frida-server
+          name: ainakan-core-devkit-qnx-${{ matrix.arch }}
+      - name: Package ainakan-server
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-server-qnx-${{ matrix.arch }}
-      - name: Package frida-portal
+          name: ainakan-server-qnx-${{ matrix.arch }}
+      - name: Package ainakan-portal
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-portal-qnx-${{ matrix.arch }}
-      - name: Package frida-gadget
+          name: ainakan-portal-qnx-${{ matrix.arch }}
+      - name: Package ainakan-gadget
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-gadget-qnx-${{ matrix.arch }}
-      - name: Package frida-inject
+          name: ainakan-gadget-qnx-${{ matrix.arch }}
+      - name: Package ainakan-inject
         uses: ./.github/actions/package-artifact-file
         with:
-          name: frida-inject-qnx-${{ matrix.arch }}
+          name: ainakan-inject-qnx-${{ matrix.arch }}
 
-  frida-windows-intel:
+  ainakan-windows-intel:
     needs: sdk-windows
     strategy:
       matrix:
@@ -791,13 +791,13 @@ jobs:
         with:
           msystem: ${{ matrix.sys }}
           install: ${{ matrix.pkg }}
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Install Go toolchain
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.FRIDA_COMPILER_MOD }}
-          cache-dependency-path: ${{ env.FRIDA_COMPILER_MOD }}
+          go-version-file: ${{ env.AINAKAN_COMPILER_MOD }}
+          cache-dependency-path: ${{ env.AINAKAN_COMPILER_MOD }}
       - name: Install Qt
         if: matrix.arch == 'x86_64'
         uses: jurplel/install-qt-action@v4
@@ -808,17 +808,17 @@ jobs:
       - name: Configure
         run: >-
           .\configure
-          --prefix=$Env:FRIDA_PREFIX
+          --prefix=$Env:AINAKAN_PREFIX
           --host=windows-${{ matrix.arch }}
           --enable-gadget
           --enable-server
           --enable-portal
           --enable-inject
           --
-          "-Dfrida_qml=auto"
-          "-Dfrida-gum:devkits=gum,gumjs"
-          "-Dfrida-core:compiler_backend=enabled"
-          "-Dfrida-core:devkits=core"
+          "-Dainakan_qml=auto"
+          "-Dainakan-gum:devkits=gum,gumjs"
+          "-Dainakan-core:compiler_backend=enabled"
+          "-Dainakan-core:devkits=core"
         env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
       - name: Compile
@@ -829,70 +829,70 @@ jobs:
         if: matrix.arch == 'x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-emulation-windows
+          name: ainakan-core-emulation-windows
           path: |
-            build/subprojects/frida-core/src/frida-helper.exe
-            build/subprojects/frida-core/lib/agent/frida-agent.dll
-            build/subprojects/frida-core/compat/frida-helper.exe
-            build/subprojects/frida-core/compat/frida-agent.dll
+            build/subprojects/ainakan-core/src/ainakan-helper.exe
+            build/subprojects/ainakan-core/lib/agent/ainakan-agent.dll
+            build/subprojects/ainakan-core/compat/ainakan-helper.exe
+            build/subprojects/ainakan-core/compat/ainakan-agent.dll
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-server.exe
-      - name: Upload frida-portal
+          name: ainakan-server-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-server.exe
+      - name: Upload ainakan-portal
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-portal.exe
-      - name: Upload frida-inject
+          name: ainakan-portal-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-portal.exe
+      - name: Upload ainakan-inject
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-inject.exe
-      - name: Upload 32-bit frida-gadget
+          name: ainakan-inject-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-inject.exe
+      - name: Upload 32-bit ainakan-gadget
         if: matrix.arch != 'x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/32/frida-gadget.dll
-      - name: Upload 64-bit frida-gadget
+          name: ainakan-gadget-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/32/ainakan-gadget.dll
+      - name: Upload 64-bit ainakan-gadget
         if: matrix.arch == 'x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/64/frida-gadget.dll
+          name: ainakan-gadget-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/64/ainakan-gadget.dll
       - name: Package Python bindings
         run: |
-          $Env:FRIDA_EXTENSION = "$Env:FRIDA_PREFIX\lib\site-packages\frida\_frida.pyd"
-          cd subprojects\frida-python
-          pip wheel -w "$Env:FRIDA_PREFIX\wheels" --no-deps .
+          $Env:AINAKAN_EXTENSION = "$Env:AINAKAN_PREFIX\lib\site-packages\ainakan\_ainakan.pyd"
+          cd subprojects\ainakan-python
+          pip wheel -w "$Env:AINAKAN_PREFIX\wheels" --no-deps .
       - name: Upload Python bindings
         uses: actions/upload-artifact@v4
         with:
-          name: frida-python-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/wheels/*.whl
+          name: ainakan-python-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/wheels/*.whl
       - name: Build Node.js bindings
         if: matrix.arch == 'x86_64'
         run: |
-          $installdir = "$Env:FRIDA_PREFIX\prebuilds"
-          $Env:FRIDA_DEPS = "$pwd\deps"
-          $Env:PKG_CONFIG_PATH = "$Env:FRIDA_PREFIX\lib\pkgconfig"
+          $installdir = "$Env:AINAKAN_PREFIX\prebuilds"
+          $Env:AINAKAN_DEPS = "$pwd\deps"
+          $Env:PKG_CONFIG_PATH = "$Env:AINAKAN_PREFIX\lib\pkgconfig"
           function Run {
             param(
               [Parameter(Mandatory)]
@@ -905,11 +905,11 @@ jobs:
               throw "'$FilePath $($Argv -join ' ')' failed with exit status $($p.ExitCode)"
             }
           }
-          Run python .\tools\ensure-submodules.py frida-node
-          cd subprojects\frida-node
-          Run npm.cmd version $Env:FRIDA_VERSION
+          Run python .\tools\ensure-submodules.py ainakan-node
+          cd subprojects\ainakan-node
+          Run npm.cmd version $Env:AINAKAN_VERSION
           Run .\configure `
-              --prefix=$Env:FRIDA_PREFIX `
+              --prefix=$Env:AINAKAN_PREFIX `
               --host=windows-${{ matrix.arch }}
           Run .\make prebuild
           New-Item -ItemType Directory -Path $installdir
@@ -918,37 +918,37 @@ jobs:
         if: matrix.arch == 'x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-node-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/prebuilds/*.tar.gz
+          name: ainakan-node-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/prebuilds/*.tar.gz
       - name: Build .NET bindings
         run: >-
           Remove-Item build -Recurse
           && .\configure
-          --prefix=$Env:FRIDA_PREFIX
+          --prefix=$Env:AINAKAN_PREFIX
           --host=windows-${{ matrix.arch }}-md
-          --enable-frida-clr
-          --disable-frida-python
-          --disable-frida-tools
+          --enable-ainakan-clr
+          --disable-ainakan-python
+          --disable-ainakan-tools
           --
-          "-Dfrida-core:compiler_backend=disabled"
+          "-Dainakan-core:compiler_backend=disabled"
           && .\make install
       - name: Upload .NET bindings
         uses: actions/upload-artifact@v4
         with:
-          name: frida-clr-windows-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/Frida.dll
+          name: ainakan-clr-windows-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/Ainakan.dll
       - name: Upload QML bindings
         if: matrix.arch == 'x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-qml-windows-${{ matrix.arch }}
+          name: ainakan-qml-windows-${{ matrix.arch }}
           path: |
-            ${{ env.FRIDA_PREFIX }}/lib/qml/
+            ${{ env.AINAKAN_PREFIX }}/lib/qml/
             !*.lib
             !*.pdb
 
-  frida-windows:
-    needs: frida-windows-intel
+  ainakan-windows:
+    needs: ainakan-windows-intel
     runs-on: windows-11-arm
     steps:
       - name: Check out repo
@@ -969,41 +969,41 @@ jobs:
         with:
           msystem: CLANGARM64
           install: mingw-w64-clang-aarch64-clang
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Install Go toolchain
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.FRIDA_COMPILER_MOD }}
-          cache-dependency-path: ${{ env.FRIDA_COMPILER_MOD }}
+          go-version-file: ${{ env.AINAKAN_COMPILER_MOD }}
+          cache-dependency-path: ${{ env.AINAKAN_COMPILER_MOD }}
       - name: Download emulation components
         uses: actions/download-artifact@v4
         with:
-          name: frida-core-emulation-windows
+          name: ainakan-core-emulation-windows
           path: emulation/
       - name: Configure
         run: |
-          $helperModern = (Resolve-Path "emulation/src/frida-helper.exe").Path
-          $agentModern = (Resolve-Path "emulation/lib/agent/frida-agent.dll").Path
-          $helperLegacy = (Resolve-Path "emulation/compat/frida-helper.exe").Path
-          $agentLegacy = (Resolve-Path "emulation/compat/frida-agent.dll").Path
+          $helperModern = (Resolve-Path "emulation/src/ainakan-helper.exe").Path
+          $agentModern = (Resolve-Path "emulation/lib/agent/ainakan-agent.dll").Path
+          $helperLegacy = (Resolve-Path "emulation/compat/ainakan-helper.exe").Path
+          $agentLegacy = (Resolve-Path "emulation/compat/ainakan-agent.dll").Path
 
           .\configure `
-            --prefix=$Env:FRIDA_PREFIX `
+            --prefix=$Env:AINAKAN_PREFIX `
             --host=windows-arm64 `
             --enable-gadget `
             --enable-server `
             --enable-portal `
             --enable-inject `
             -- `
-            "-Dfrida_qml=auto" `
-            "-Dfrida-gum:devkits=gum,gumjs" `
-            "-Dfrida-core:compiler_backend=enabled" `
-            "-Dfrida-core:devkits=core" `
-            "-Dfrida-core:helper_emulated_modern=$helperModern" `
-            "-Dfrida-core:agent_emulated_modern=$agentModern" `
-            "-Dfrida-core:helper_emulated_legacy=$helperLegacy" `
-            "-Dfrida-core:agent_emulated_legacy=$agentLegacy"
+            "-Dainakan_qml=auto" `
+            "-Dainakan-gum:devkits=gum,gumjs" `
+            "-Dainakan-core:compiler_backend=enabled" `
+            "-Dainakan-core:devkits=core" `
+            "-Dainakan-core:helper_emulated_modern=$helperModern" `
+            "-Dainakan-core:agent_emulated_modern=$agentModern" `
+            "-Dainakan-core:helper_emulated_legacy=$helperLegacy" `
+            "-Dainakan-core:agent_emulated_legacy=$agentLegacy"
         env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
       - name: Compile
@@ -1013,53 +1013,53 @@ jobs:
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-server.exe
-      - name: Upload frida-portal
+          name: ainakan-server-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-server.exe
+      - name: Upload ainakan-portal
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-portal.exe
-      - name: Upload frida-inject
+          name: ainakan-portal-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-portal.exe
+      - name: Upload ainakan-inject
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-inject.exe
-      - name: Upload frida-gadget
+          name: ainakan-inject-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-inject.exe
+      - name: Upload ainakan-gadget
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/64/frida-gadget.dll
+          name: ainakan-gadget-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/64/ainakan-gadget.dll
       - name: Package Python bindings
         run: |
-          $Env:FRIDA_EXTENSION = "$Env:FRIDA_PREFIX\lib\site-packages\frida\_frida.pyd"
-          cd subprojects\frida-python
-          pip wheel -w "$Env:FRIDA_PREFIX\wheels" --no-deps .
+          $Env:AINAKAN_EXTENSION = "$Env:AINAKAN_PREFIX\lib\site-packages\ainakan\_ainakan.pyd"
+          cd subprojects\ainakan-python
+          pip wheel -w "$Env:AINAKAN_PREFIX\wheels" --no-deps .
       - name: Upload Python bindings
         uses: actions/upload-artifact@v4
         with:
-          name: frida-python-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/wheels/*.whl
+          name: ainakan-python-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/wheels/*.whl
       - name: Build Node.js bindings
         run: |
-          $installdir = "$Env:FRIDA_PREFIX\prebuilds"
-          $Env:FRIDA_DEPS = "$pwd\deps"
-          $Env:PKG_CONFIG_PATH = "$Env:FRIDA_PREFIX\lib\pkgconfig"
+          $installdir = "$Env:AINAKAN_PREFIX\prebuilds"
+          $Env:AINAKAN_DEPS = "$pwd\deps"
+          $Env:PKG_CONFIG_PATH = "$Env:AINAKAN_PREFIX\lib\pkgconfig"
           function Run {
             param(
               [Parameter(Mandatory)]
@@ -1072,11 +1072,11 @@ jobs:
               throw "'$FilePath $($Argv -join ' ')' failed with exit status $($p.ExitCode)"
             }
           }
-          Run python .\tools\ensure-submodules.py frida-node
-          cd subprojects\frida-node
-          Run npm.cmd version $Env:FRIDA_VERSION
+          Run python .\tools\ensure-submodules.py ainakan-node
+          cd subprojects\ainakan-node
+          Run npm.cmd version $Env:AINAKAN_VERSION
           Run .\configure `
-              --prefix=$Env:FRIDA_PREFIX `
+              --prefix=$Env:AINAKAN_PREFIX `
               --host=windows-arm64
           Run .\make prebuild
           New-Item -ItemType Directory -Path $installdir
@@ -1084,10 +1084,10 @@ jobs:
       - name: Upload Node.js bindings
         uses: actions/upload-artifact@v4
         with:
-          name: frida-node-windows-arm64
-          path: ${{ env.FRIDA_PREFIX }}/prebuilds/*.tar.gz
+          name: ainakan-node-windows-arm64
+          path: ${{ env.AINAKAN_PREFIX }}/prebuilds/*.tar.gz
 
-  frida-macos:
+  ainakan-macos:
     needs: sdk-macos
     strategy:
       matrix:
@@ -1109,13 +1109,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Install Go toolchain
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.FRIDA_COMPILER_MOD }}
-          cache-dependency-path: ${{ env.FRIDA_COMPILER_MOD }}
+          go-version-file: ${{ env.AINAKAN_COMPILER_MOD }}
+          cache-dependency-path: ${{ env.AINAKAN_COMPILER_MOD }}
       - name: Install Qt
         if: matrix.arch != 'arm64e'
         uses: jurplel/install-qt-action@v4
@@ -1126,19 +1126,19 @@ jobs:
       - name: Configure
         run: >-
           ./configure
-          "--prefix=$FRIDA_PREFIX"
+          "--prefix=$AINAKAN_PREFIX"
           --host=macos-${{ matrix.arch }}
           --enable-gadget
           --enable-server
           --enable-portal
           --enable-inject
-          --enable-frida-python
+          --enable-ainakan-python
           --
-          -Dfrida_qml=${{ matrix.arch != 'arm64e' && 'enabled' || 'disabled' }}
-          -Dfrida-gum:graft_tool=enabled
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:compiler_backend=${{ matrix.arch != 'arm64e' && 'enabled' || 'disabled' }}
-          -Dfrida-core:devkits=core
+          -Dainakan_qml=${{ matrix.arch != 'arm64e' && 'enabled' || 'disabled' }}
+          -Dainakan-gum:graft_tool=enabled
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:compiler_backend=${{ matrix.arch != 'arm64e' && 'enabled' || 'disabled' }}
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
@@ -1146,48 +1146,48 @@ jobs:
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload gum-graft
         if: matrix.arch != 'arm64e'
         uses: actions/upload-artifact@v4
         with:
           name: gum-graft-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/gum-graft
+          path: ${{ env.AINAKAN_PREFIX }}/bin/gum-graft
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-server
-      - name: Upload frida-portal
+          name: ainakan-server-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-server
+      - name: Upload ainakan-portal
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-portal
-      - name: Upload frida-inject
+          name: ainakan-portal-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-portal
+      - name: Upload ainakan-inject
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-inject
-      - name: Upload frida-gadget
+          name: ainakan-inject-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-inject
+      - name: Upload ainakan-gadget
         if: matrix.arch != 'arm64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/frida-gadget.dylib
+          name: ainakan-gadget-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/ainakan-gadget.dylib
       - name: Package Python bindings
         run: |
-          export FRIDA_EXTENSION=$(find "$FRIDA_PREFIX" -name _frida.abi3.so)
+          export AINAKAN_EXTENSION=$(find "$AINAKAN_PREFIX" -name _ainakan.abi3.so)
           case ${{ matrix.arch }} in
             x86_64)
               platform=macosx-10.13-x86_64
@@ -1197,24 +1197,24 @@ jobs:
               ;;
           esac
           export _PYTHON_HOST_PLATFORM=$platform
-          cd subprojects/frida-python
-          pip wheel -w "$FRIDA_PREFIX/wheels" --no-deps .
+          cd subprojects/ainakan-python
+          pip wheel -w "$AINAKAN_PREFIX/wheels" --no-deps .
       - name: Upload Python bindings
         uses: actions/upload-artifact@v4
         with:
-          name: frida-python-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/wheels/*.whl
+          name: ainakan-python-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/wheels/*.whl
       - name: Build Node.js bindings
         if: matrix.arch != 'arm64e'
         run: |
-          installdir=$FRIDA_PREFIX/prebuilds
-          export FRIDA_DEPS=$PWD/deps
-          export PKG_CONFIG_PATH=$FRIDA_PREFIX/lib/pkgconfig
-          python tools/ensure-submodules.py frida-node
-          cd subprojects/frida-node
-          npm version $FRIDA_VERSION
+          installdir=$AINAKAN_PREFIX/prebuilds
+          export AINAKAN_DEPS=$PWD/deps
+          export PKG_CONFIG_PATH=$AINAKAN_PREFIX/lib/pkgconfig
+          python tools/ensure-submodules.py ainakan-node
+          cd subprojects/ainakan-node
+          npm version $AINAKAN_VERSION
           ./configure \
-              "--prefix=$FRIDA_PREFIX" \
+              "--prefix=$AINAKAN_PREFIX" \
               --host=macos-${{ matrix.arch }}
           make prebuild
           mkdir "$installdir"
@@ -1224,23 +1224,23 @@ jobs:
         if: matrix.arch != 'arm64e'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-node-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/prebuilds/*.tar.gz
+          name: ainakan-node-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/prebuilds/*.tar.gz
       - name: Upload QML bindings
         if: matrix.arch != 'arm64e'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-qml-macos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/qml/
+          name: ainakan-qml-macos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/qml/
 
-  frida-linux:
+  ainakan-linux:
     needs: sdk-linux
     strategy:
       matrix:
         arch: [x86, x86_64, x86_64-musl, armhf, armhf-musl, armbe8, arm64, arm64be, arm64-musl, mips, mipsel, mips64, mips64el]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: ghcr.io/frida/x-tools-linux-${{ matrix.arch }}:latest
+    container: ghcr.io/ainakan/x-tools-linux-${{ matrix.arch }}:latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -1253,16 +1253,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Install Go toolchain
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.FRIDA_COMPILER_MOD }}
-          cache-dependency-path: ${{ env.FRIDA_COMPILER_MOD }}
+          go-version-file: ${{ env.AINAKAN_COMPILER_MOD }}
+          cache-dependency-path: ${{ env.AINAKAN_COMPILER_MOD }}
       - name: Configure qemu-user
         if: ${{ !startsWith(matrix.arch, 'x86') }}
-        run: echo "FRIDA_QEMU_SYSROOT=/opt/x-tools/$XTOOLS_HOST/$XTOOLS_HOST/sysroot" >> $GITHUB_ENV
+        run: echo "AINAKAN_QEMU_SYSROOT=/opt/x-tools/$XTOOLS_HOST/$XTOOLS_HOST/sysroot" >> $GITHUB_ENV
       - name: Prepare environment for installing Qt
         if: matrix.arch == 'x86_64'
         run: |
@@ -1279,19 +1279,19 @@ jobs:
       - name: Configure
         run: >-
           ./configure
-          "--prefix=$FRIDA_PREFIX"
+          "--prefix=$AINAKAN_PREFIX"
           --host=$XTOOLS_HOST
           --enable-gadget
           --enable-server
           --enable-portal
           --enable-inject
-          --enable-frida-python
+          --enable-ainakan-python
           --
           -Dlibdir=lib
-          -Dfrida_qml=${{ matrix.arch == 'x86_64' && 'enabled' || 'disabled' }}
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:compiler_backend=${{ !(startsWith(matrix.arch, 'mips') || matrix.arch == 'armbe8' || matrix.arch == 'arm64be') && 'enabled' || 'disabled' }}
-          -Dfrida-core:devkits=core
+          -Dainakan_qml=${{ matrix.arch == 'x86_64' && 'enabled' || 'disabled' }}
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:compiler_backend=${{ !(startsWith(matrix.arch, 'mips') || matrix.arch == 'armbe8' || matrix.arch == 'arm64be') && 'enabled' || 'disabled' }}
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
@@ -1299,48 +1299,48 @@ jobs:
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-server
-      - name: Upload frida-portal
+          name: ainakan-server-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-server
+      - name: Upload ainakan-portal
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-portal
-      - name: Upload frida-inject
+          name: ainakan-portal-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-portal
+      - name: Upload ainakan-inject
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-inject
-      - name: Upload 32-bit frida-gadget
+          name: ainakan-inject-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-inject
+      - name: Upload 32-bit ainakan-gadget
         if: ${{ !contains(matrix.arch, '64') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/32/frida-gadget.so
-      - name: Upload 64-bit frida-gadget
+          name: ainakan-gadget-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/32/ainakan-gadget.so
+      - name: Upload 64-bit ainakan-gadget
         if: ${{ contains(matrix.arch, '64') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/64/frida-gadget.so
+          name: ainakan-gadget-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/64/ainakan-gadget.so
       - name: Package Python bindings
         run: |
-          export FRIDA_EXTENSION=$(find "$FRIDA_PREFIX" -name _frida.abi3.so)
+          export AINAKAN_EXTENSION=$(find "$AINAKAN_PREFIX" -name _ainakan.abi3.so)
           case ${{ matrix.arch }} in
             *-musl)
               py_oses=(musllinux_1_1)
@@ -1355,8 +1355,8 @@ jobs:
               py_oses=(manylinux_2_5)
               ;;
           esac
-          frida_arch=$(echo "${{ matrix.arch }}" | cut -f1 -d"-")
-          case $frida_arch in
+          ainakan_arch=$(echo "${{ matrix.arch }}" | cut -f1 -d"-")
+          case $ainakan_arch in
             x86)
               py_arch=i686
               ;;
@@ -1367,33 +1367,33 @@ jobs:
               py_arch=aarch64
               ;;
             *)
-              py_arch=$frida_arch
+              py_arch=$ainakan_arch
               ;;
           esac
-          cd subprojects/frida-python
+          cd subprojects/ainakan-python
           export _PYTHON_HOST_PLATFORM=linux-$py_arch
           for py_os in "${py_oses[@]}"; do
             echo "plat_name = ${py_os}_${py_arch}" >> setup.cfg
-            pip wheel -w "$FRIDA_PREFIX/wheels" --no-deps .
+            pip wheel -w "$AINAKAN_PREFIX/wheels" --no-deps .
             git checkout setup.cfg
           done
         shell: bash
       - name: Upload Python bindings
         uses: actions/upload-artifact@v4
         with:
-          name: frida-python-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/wheels/*.whl
+          name: ainakan-python-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/wheels/*.whl
       - name: Build Node.js bindings
         if: ${{ !(startsWith(matrix.arch, 'mips') || endsWith(matrix.arch, '-musl') || matrix.arch == 'armbe8' || matrix.arch == 'arm64be') }}
         run: |
-          installdir=$FRIDA_PREFIX/prebuilds
-          export FRIDA_DEPS=$PWD/deps
-          export PKG_CONFIG_PATH=$FRIDA_PREFIX/lib/pkgconfig
-          python tools/ensure-submodules.py frida-node
-          cd subprojects/frida-node
-          npm version $FRIDA_VERSION
+          installdir=$AINAKAN_PREFIX/prebuilds
+          export AINAKAN_DEPS=$PWD/deps
+          export PKG_CONFIG_PATH=$AINAKAN_PREFIX/lib/pkgconfig
+          python tools/ensure-submodules.py ainakan-node
+          cd subprojects/ainakan-node
+          npm version $AINAKAN_VERSION
           ./configure \
-              "--prefix=$FRIDA_PREFIX" \
+              "--prefix=$AINAKAN_PREFIX" \
               --host=$XTOOLS_HOST
           make prebuild
           mkdir "$installdir"
@@ -1403,16 +1403,16 @@ jobs:
         if: ${{ !(startsWith(matrix.arch, 'mips') || endsWith(matrix.arch, '-musl') || matrix.arch == 'armbe8' || matrix.arch == 'arm64be') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-node-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/prebuilds/*.tar.gz
+          name: ainakan-node-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/prebuilds/*.tar.gz
       - name: Upload QML bindings
         if: matrix.arch == 'x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-qml-linux-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/qml/
+          name: ainakan-qml-linux-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/qml/
 
-  frida-ios:
+  ainakan-ios:
     needs: [sdk-macos, sdk-ios]
     strategy:
       matrix:
@@ -1436,13 +1436,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Install Go toolchain
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.FRIDA_COMPILER_MOD }}
-          cache-dependency-path: ${{ env.FRIDA_COMPILER_MOD }}
+          go-version-file: ${{ env.AINAKAN_COMPILER_MOD }}
+          cache-dependency-path: ${{ env.AINAKAN_COMPILER_MOD }}
       - name: Configure
         run: >-
           ./configure
@@ -1450,67 +1450,67 @@ jobs:
           --host=ios-${{ matrix.arch }}
           --enable-portal
           --
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:compiler_backend=${{ matrix.arch != 'arm64e' && 'enabled' || 'disabled' }}
-          -Dfrida-core:assets=installed
-          -Dfrida-core:devkits=core
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:compiler_backend=${{ matrix.arch != 'arm64e' && 'enabled' || 'disabled' }}
+          -Dainakan-core:assets=installed
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
-        run: DESTDIR="$FRIDA_PREFIX" make install
+        run: DESTDIR="$AINAKAN_PREFIX" make install
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         if: ${{ matrix.arch != 'arm64' && !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/bin/frida-server
-      - name: Upload frida-portal
+          name: ainakan-server-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/bin/ainakan-server
+      - name: Upload ainakan-portal
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/bin/frida-portal
-      - name: Upload frida-inject
+          name: ainakan-portal-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/bin/ainakan-portal
+      - name: Upload ainakan-inject
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/bin/frida-inject
-      - name: Upload frida-helper
+          name: ainakan-inject-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/bin/ainakan-inject
+      - name: Upload ainakan-helper
         if: ${{ matrix.arch != 'arm64' && !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-helper-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/frida-helper
-      - name: Upload frida-agent
+          name: ainakan-helper-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/ainakan-helper
+      - name: Upload ainakan-agent
         if: ${{ matrix.arch != 'arm64' && !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-agent-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/frida-agent.dylib
-      - name: Upload frida-gadget
+          name: ainakan-agent-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/ainakan-agent.dylib
+      - name: Upload ainakan-gadget
         if: matrix.arch != 'arm64'
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-ios-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/frida-gadget.dylib
+          name: ainakan-gadget-ios-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/ainakan-gadget.dylib
 
-  frida-watchos:
+  ainakan-watchos:
     needs: [sdk-macos, sdk-watchos]
     strategy:
       matrix:
@@ -1535,11 +1535,11 @@ jobs:
       - name: Configure
         run: >-
           ./configure
-          "--prefix=$FRIDA_PREFIX"
+          "--prefix=$AINAKAN_PREFIX"
           --host=watchos-${{ matrix.arch }}
           --
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:devkits=core
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
@@ -1547,25 +1547,25 @@ jobs:
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-watchos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-watchos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-watchos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-watchos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-watchos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-gadget
+          name: ainakan-core-devkit-watchos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-gadget
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-watchos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/frida-gadget.dylib
+          name: ainakan-gadget-watchos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/ainakan-gadget.dylib
 
-  frida-tvos:
+  ainakan-tvos:
     needs: [sdk-macos, sdk-tvos]
     strategy:
       matrix:
@@ -1587,8 +1587,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Configure
         run: >-
           ./configure
@@ -1596,65 +1596,65 @@ jobs:
           --host=tvos-${{ matrix.arch }}
           --enable-portal
           --
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:assets=installed
-          -Dfrida-core:devkits=core
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:assets=installed
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
-        run: DESTDIR="$FRIDA_PREFIX" make install
+        run: DESTDIR="$AINAKAN_PREFIX" make install
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/bin/frida-server
-      - name: Upload frida-portal
+          name: ainakan-server-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/bin/ainakan-server
+      - name: Upload ainakan-portal
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/bin/frida-portal
-      - name: Upload frida-inject
+          name: ainakan-portal-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/bin/ainakan-portal
+      - name: Upload ainakan-inject
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/bin/frida-inject
-      - name: Upload frida-helper
+          name: ainakan-inject-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/bin/ainakan-inject
+      - name: Upload ainakan-helper
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-helper-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/frida-helper
-      - name: Upload frida-agent
+          name: ainakan-helper-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/ainakan-helper
+      - name: Upload ainakan-agent
         if: ${{ !endsWith(matrix.arch, '-simulator') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-agent-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/frida-agent.dylib
-      - name: Upload frida-gadget
+          name: ainakan-agent-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/ainakan-agent.dylib
+      - name: Upload ainakan-gadget
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-tvos-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/usr/lib/frida/frida-gadget.dylib
+          name: ainakan-gadget-tvos-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/usr/lib/ainakan/ainakan-gadget.dylib
 
-  frida-android:
+  ainakan-android:
     needs: [sdk-linux, sdk-android-32, sdk-android-64]
     strategy:
       matrix:
@@ -1673,13 +1673,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Grab frida-core
-        run: python tools/ensure-submodules.py frida-core
+      - name: Grab ainakan-core
+        run: python tools/ensure-submodules.py ainakan-core
       - name: Install Go toolchain
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.FRIDA_COMPILER_MOD }}
-          cache-dependency-path: ${{ env.FRIDA_COMPILER_MOD }}
+          go-version-file: ${{ env.AINAKAN_COMPILER_MOD }}
+          cache-dependency-path: ${{ env.AINAKAN_COMPILER_MOD }}
       - name: Set up NDK
         id: setup-ndk
         uses: nttld/setup-ndk@v1
@@ -1691,13 +1691,13 @@ jobs:
       - name: Configure
         run: >-
           ./configure
-          "--prefix=$FRIDA_PREFIX"
+          "--prefix=$AINAKAN_PREFIX"
           --host=android-${{ matrix.arch }}
           --enable-portal
           --
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:compiler_backend=enabled
-          -Dfrida-core:devkits=core
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:compiler_backend=enabled
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
@@ -1705,50 +1705,50 @@ jobs:
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-server
-      - name: Upload frida-portal
+          name: ainakan-server-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-server
+      - name: Upload ainakan-portal
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-portal
-      - name: Upload frida-inject
+          name: ainakan-portal-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-portal
+      - name: Upload ainakan-inject
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-inject
-      - name: Upload 32-bit frida-gadget
+          name: ainakan-inject-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-inject
+      - name: Upload 32-bit ainakan-gadget
         if: ${{ !contains(matrix.arch, '64') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/32/frida-gadget.so
-      - name: Upload 64-bit frida-gadget
+          name: ainakan-gadget-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/32/ainakan-gadget.so
+      - name: Upload 64-bit ainakan-gadget
         if: ${{ contains(matrix.arch, '64') }}
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-android-${{ matrix.arch }}
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/64/frida-gadget.so
+          name: ainakan-gadget-android-${{ matrix.arch }}
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/64/ainakan-gadget.so
 
-  frida-qnx:
+  ainakan-qnx:
     runs-on: ubuntu-latest
     needs: sdk-linux
-    container: ghcr.io/frida/qnx-tools:latest
+    container: ghcr.io/ainakan/qnx-tools:latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -1768,12 +1768,12 @@ jobs:
       - name: Configure
         run: >-
           ./configure
-          "--prefix=$FRIDA_PREFIX"
+          "--prefix=$AINAKAN_PREFIX"
           --host=arm-unknown-nto-qnx6.5.0eabi
           --enable-portal
           --
-          -Dfrida-gum:devkits=gum,gumjs
-          -Dfrida-core:devkits=core
+          -Dainakan-gum:devkits=gum,gumjs
+          -Dainakan-core:devkits=core
       - name: Compile
         run: make
       - name: Install
@@ -1781,38 +1781,38 @@ jobs:
       - name: Upload Gum devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gum-devkit-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gum/
+          name: ainakan-gum-devkit-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gum/
       - name: Upload GumJS devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gumjs-devkit-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/gumjs/
+          name: ainakan-gumjs-devkit-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/gumjs/
       - name: Upload Core devkit
         uses: actions/upload-artifact@v4
         with:
-          name: frida-core-devkit-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/devkits/core/
-      - name: Upload frida-server
+          name: ainakan-core-devkit-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/devkits/core/
+      - name: Upload ainakan-server
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-server
-      - name: Upload frida-portal
+          name: ainakan-server-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-server
+      - name: Upload ainakan-portal
         uses: actions/upload-artifact@v4
         with:
-          name: frida-portal-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-portal
-      - name: Upload frida-inject
+          name: ainakan-portal-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-portal
+      - name: Upload ainakan-inject
         uses: actions/upload-artifact@v4
         with:
-          name: frida-inject-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/bin/frida-inject
-      - name: Upload frida-gadget
+          name: ainakan-inject-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/bin/ainakan-inject
+      - name: Upload ainakan-gadget
         uses: actions/upload-artifact@v4
         with:
-          name: frida-gadget-qnx-armeabi
-          path: ${{ env.FRIDA_PREFIX }}/lib/frida/32/frida-gadget.so
+          name: ainakan-gadget-qnx-armeabi
+          path: ${{ env.AINAKAN_PREFIX }}/lib/ainakan/32/ainakan-gadget.so
 
   toolchain-windows:
     strategy:
@@ -1971,7 +1971,7 @@ jobs:
         arch: [x86, x86_64, x86_64-musl, armhf, armhf-musl, armbe8, arm64, arm64be, arm64beilp32, arm64-musl]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: ghcr.io/frida/x-tools-linux-${{ matrix.arch }}:latest
+    container: ghcr.io/ainakan/x-tools-linux-${{ matrix.arch }}:latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -1992,7 +1992,7 @@ jobs:
         arch: [x86, x86_64, x86_64-musl, armhf, armhf-musl, armbe8, arm64, arm64be, arm64beilp32, arm64-musl, mips, mipsel, mips64, mips64el]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: ghcr.io/frida/x-tools-linux-${{ matrix.arch }}:latest
+    container: ghcr.io/ainakan/x-tools-linux-${{ matrix.arch }}:latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -2003,12 +2003,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
           cloudflare-email: ${{ secrets.CF_EMAIL }}
           cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Set FRIDA_CAN_RUN_HOST_BINARIES
+      - name: Set AINAKAN_CAN_RUN_HOST_BINARIES
         if: ${{ matrix.arch == 'x86' }}
-        run: echo "FRIDA_CAN_RUN_HOST_BINARIES=yes" >> $GITHUB_ENV
+        run: echo "AINAKAN_CAN_RUN_HOST_BINARIES=yes" >> $GITHUB_ENV
       - name: Configure qemu-user
         if: ${{ !startsWith(matrix.arch, 'x86') }}
-        run: echo "FRIDA_QEMU_SYSROOT=/opt/x-tools/$XTOOLS_HOST/$XTOOLS_HOST/sysroot" >> $GITHUB_ENV
+        run: echo "AINAKAN_QEMU_SYSROOT=/opt/x-tools/$XTOOLS_HOST/$XTOOLS_HOST/sysroot" >> $GITHUB_ENV
       - name: Roll SDK
         run: releng/deps.py roll sdk $XTOOLS_HOST --activate
 
@@ -2019,7 +2019,7 @@ jobs:
         arch: [x86, arm]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: ghcr.io/frida/x-tools-linux-x86:latest
+    container: ghcr.io/ainakan/x-tools-linux-x86:latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -2048,7 +2048,7 @@ jobs:
         arch: [x86_64, arm64]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: ghcr.io/frida/x-tools-linux-x86_64:latest
+    container: ghcr.io/ainakan/x-tools-linux-x86_64:latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v4

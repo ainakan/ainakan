@@ -1,7 +1,7 @@
-# Frida
+# Ainakan
 
 Dynamic instrumentation toolkit for developers, reverse-engineers, and security
-researchers. Learn more at [frida.re](https://frida.re/).
+researchers. Learn more at [ainakan.re](https://ainakan.re/).
 
 Two ways to install
 ===================
@@ -10,12 +10,12 @@ Two ways to install
 
 This is the recommended way to get started. All you need to do is:
 
-    pip install frida-tools # CLI tools
-    pip install frida       # Python bindings
-    npm install frida       # Node.js bindings
+    pip install ainakan-tools # CLI tools
+    pip install ainakan       # Python bindings
+    npm install ainakan       # Node.js bindings
 
 You may also download pre-built binaries for various operating systems from
-Frida's [releases](https://github.com/frida/frida/releases) page on GitHub.
+Ainakan's [releases](https://github.com/ainakan/ainakan/releases) page on GitHub.
 
 ## 2. Build your own binaries
 
@@ -28,8 +28,8 @@ any other options.
 
 ### CLI tools
 
-For running the Frida CLI tools, e.g. `frida`, `frida-ls-devices`, `frida-ps`,
-`frida-kill`, `frida-trace`, `frida-discover`, etc., you need a few packages:
+For running the Ainakan CLI tools, e.g. `ainakan`, `ainakan-ls-devices`, `ainakan-ps`,
+`ainakan-kill`, `ainakan-trace`, `ainakan-discover`, etc., you need a few packages:
 
     pip install colorama prompt-toolkit pygments
 
@@ -59,4 +59,4 @@ variables, and run `make`:
 
 ## Learn more
 
-Have a look at our [documentation](https://frida.re/docs/home/).
+Have a look at our [documentation](https://ainakan.re/docs/home/).

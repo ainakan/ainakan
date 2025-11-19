@@ -18,8 +18,8 @@ runs:
   steps:
     - name: Configure git
       run: |
-        git config --global user.name "Frida Developers"
-        git config --global user.email "oleavr@frida.re"
+        git config --global user.name "Ainakan Developers"
+        git config --global user.email "oleavr@ainakan.re"
         git config --global --add safe.directory $GITHUB_WORKSPACE
       shell: bash
     - name: Check out releng
@@ -31,8 +31,8 @@ runs:
     - name: Add convenience environment variables
       run: |
         (
-          echo "FRIDA_PREFIX=$RUNNER_WORKSPACE/dist"
-          echo "FRIDA_VERSION=$(releng/frida_version.py)"
+          echo "AINAKAN_PREFIX=$RUNNER_WORKSPACE/dist"
+          echo "AINAKAN_VERSION=$(releng/ainakan_version.py)"
         ) >> $GITHUB_ENV
       shell: bash
     - name: Configure AWS credentials
@@ -45,7 +45,7 @@ runs:
       run: |
         (
           echo "defaults:"
-          echo "    domain: frida.re"
+          echo "    domain: ainakan.re"
           echo "    email: ${{ inputs.cloudflare-email }}"
           echo "    token: ${{ inputs.cloudflare-token }}"
         ) > ~/.cfcli.yml

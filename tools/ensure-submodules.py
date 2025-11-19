@@ -11,7 +11,7 @@ UPDATE_FLAGS = ["--init", "--depth", "1"]
 def main(argv: list[str]):
     names = argv[1:]
     if not names:
-        names = ["frida-gum", "frida-core"]
+        names = ["ainakan-gum", "ainakan-core"]
     paths_to_check = [Path("subprojects") / name for name in names]
 
     try:

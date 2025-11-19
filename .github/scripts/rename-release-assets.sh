@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -z "$FRIDA_VERSION" ]; then
-  echo "FRIDA_VERSION must be set" > /dev/stderr
+if [ -z "$AINAKAN_VERSION" ]; then
+  echo "AINAKAN_VERSION must be set" > /dev/stderr
   exit 1
 fi
 
@@ -9,15 +9,15 @@ set -e
 
 cd build/release-assets
 for name in *; do
-  if echo $name | grep -q $FRIDA_VERSION; then
+  if echo $name | grep -q $AINAKAN_VERSION; then
     continue
   fi
   case $name in
-    frida-*-devkit-*)
-      new_name=$(echo $name | sed -e "s,devkit-,devkit-$FRIDA_VERSION-,")
+    ainakan-*-devkit-*)
+      new_name=$(echo $name | sed -e "s,devkit-,devkit-$AINAKAN_VERSION-,")
       ;;
-    frida-server-*|frida-portal-*|frida-inject-*|frida-gadget-*|frida-swift-*|frida-clr-*|frida-qml-*|gum-graft-*)
-      new_name=$(echo $name | sed -E -e "s,^(frida|gum)-([^-]+),\\1-\\2-$FRIDA_VERSION,")
+    ainakan-server-*|ainakan-portal-*|ainakan-inject-*|ainakan-gadget-*|ainakan-swift-*|ainakan-clr-*|ainakan-qml-*|gum-graft-*)
+      new_name=$(echo $name | sed -E -e "s,^(ainakan|gum)-([^-]+),\\1-\\2-$AINAKAN_VERSION,")
       ;;
     *)
       new_name=""

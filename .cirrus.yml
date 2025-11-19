@@ -32,8 +32,8 @@ task:
     git reset --hard $CIRRUS_CHANGE_IN_REPO
     $PYTHON tools/ensure-submodules.py
   setup_environment_script: |
-    echo "FRIDA_PREFIX=$CIRRUS_WORKING_DIR/dist" >> $CIRRUS_ENV
-    echo "FRIDA_VERSION=$(python releng/frida_version.py)" >> $CIRRUS_ENV
+    echo "AINAKAN_PREFIX=$CIRRUS_WORKING_DIR/dist" >> $CIRRUS_ENV
+    echo "AINAKAN_VERSION=$(python releng/ainakan_version.py)" >> $CIRRUS_ENV
     mkdir -p ~/.aws
     (
       echo "[default]"
@@ -46,7 +46,7 @@ task:
     ) > ~/.aws/credentials
     (
       echo "defaults:"
-      echo "    domain: frida.re"
+      echo "    domain: ainakan.re"
       echo "    email: $CF_EMAIL"
       echo "    token: $CF_TOKEN"
     ) > ~/.cfcli.yml
@@ -54,48 +54,48 @@ task:
   roll_sdk_script: $PYTHON releng/deps.py roll sdk freebsd-x86_64
   configure_script: >-
     ./configure
-    "--prefix=$FRIDA_PREFIX"
+    "--prefix=$AINAKAN_PREFIX"
     --enable-gadget
     --enable-server
     --enable-portal
     --enable-inject
-    --disable-frida-tools
+    --disable-ainakan-tools
     --
-    -Dfrida-gum:devkits=gum,gumjs
-    -Dfrida-core:compiler_backend=enabled
-    -Dfrida-core:devkits=core
+    -Dainakan-gum:devkits=gum,gumjs
+    -Dainakan-core:compiler_backend=enabled
+    -Dainakan-core:devkits=core
   compile_script: make
   install_script: make install
-  frida_gum_devkit_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/lib/frida/devkits/gum/*"
-  frida_gumjs_devkit_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/lib/frida/devkits/gumjs/*"
-  frida_core_devkit_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/lib/frida/devkits/core/*"
-  frida_server_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/bin/frida-server"
-  frida_portal_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/bin/frida-portal"
-  frida_inject_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/bin/frida-inject"
-  frida_gadget_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/lib/frida/64/frida-gadget.so"
+  ainakan_gum_devkit_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/lib/ainakan/devkits/gum/*"
+  ainakan_gumjs_devkit_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/lib/ainakan/devkits/gumjs/*"
+  ainakan_core_devkit_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/lib/ainakan/devkits/core/*"
+  ainakan_server_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/bin/ainakan-server"
+  ainakan_portal_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/bin/ainakan-portal"
+  ainakan_inject_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/bin/ainakan-inject"
+  ainakan_gadget_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/lib/ainakan/64/ainakan-gadget.so"
   package_python_script: |
-    export FRIDA_EXTENSION=$(find "$FRIDA_PREFIX" -name _frida.abi3.so)
-    cd subprojects/frida-python
-    pip wheel -w "$FRIDA_PREFIX/wheels" --no-deps .
-  frida_python_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/wheels/*.whl"
+    export AINAKAN_EXTENSION=$(find "$AINAKAN_PREFIX" -name _ainakan.abi3.so)
+    cd subprojects/ainakan-python
+    pip wheel -w "$AINAKAN_PREFIX/wheels" --no-deps .
+  ainakan_python_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/wheels/*.whl"
   build_node_script: |
-    installdir=$FRIDA_PREFIX/prebuilds
-    export FRIDA_DEPS=$PWD/deps
-    export PKG_CONFIG_PATH=$FRIDA_PREFIX/libdata/pkgconfig
-    python tools/ensure-submodules.py frida-node
-    cd subprojects/frida-node
-    npm version $FRIDA_VERSION
-    ./configure "--prefix=$FRIDA_PREFIX"
+    installdir=$AINAKAN_PREFIX/prebuilds
+    export AINAKAN_DEPS=$PWD/deps
+    export PKG_CONFIG_PATH=$AINAKAN_PREFIX/libdata/pkgconfig
+    python tools/ensure-submodules.py ainakan-node
+    cd subprojects/ainakan-node
+    npm version $AINAKAN_VERSION
+    ./configure "--prefix=$AINAKAN_PREFIX"
     make prebuild
     mkdir "$installdir"
     cp build/*.tar.gz "$installdir"
-  frida_node_freebsd_x86_64_artifacts:
-    path: "$FRIDA_PREFIX/prebuilds/*"
+  ainakan_node_freebsd_x86_64_artifacts:
+    path: "$AINAKAN_PREFIX/prebuilds/*"

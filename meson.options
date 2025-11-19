@@ -1,7 +1,7 @@
-option('frida_tools',
+option('ainakan_tools',
   type: 'feature',
   value: 'auto',
-  description: 'Build CLI tools, like frida, frida-trace, etc.',
+  description: 'Build CLI tools, like ainakan, ainakan-trace, etc.',
 )
 
 option('graft_tool',
@@ -13,52 +13,52 @@ option('graft_tool',
 option('gadget',
   type: 'feature',
   value: 'auto',
-  description: 'Build frida-gadget',
+  description: 'Build ainakan-gadget',
 )
 
 option('server',
   type: 'feature',
   value: 'auto',
-  description: 'Build frida-server',
+  description: 'Build ainakan-server',
 )
 
 option('portal',
   type: 'feature',
   value: 'disabled',
-  description: 'Build frida-portal',
+  description: 'Build ainakan-portal',
 )
 
 option('inject',
   type: 'feature',
   value: 'auto',
-  description: 'Build frida-inject',
+  description: 'Build ainakan-inject',
 )
 
-option('frida_clr',
+option('ainakan_clr',
   type: 'feature',
   value: 'disabled',
   description: 'Build .NET bindings',
 )
 
-option('frida_node',
+option('ainakan_node',
   type: 'feature',
   value: 'disabled',
   description: 'Build Node.js bindings',
 )
 
-option('frida_python',
+option('ainakan_python',
   type: 'feature',
   value: 'auto',
   description: 'Build Python bindings',
 )
 
-option('frida_swift',
+option('ainakan_swift',
   type: 'feature',
   value: 'disabled',
   description: 'Build Swift bindings',
 )
 
-option('frida_qml',
+option('ainakan_qml',
   type: 'feature',
   value: 'disabled',
   description: 'Build QML bindings',
